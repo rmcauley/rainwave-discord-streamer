@@ -1,0 +1,15 @@
+[[source]]
+url = "https://pypi.python.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+PyNaCl = "==1.4.0"
+"discord.py" = "==1.5.1"
+
+[dev-packages]
+black = "==19.10b0"
+pylint = "*"
+
+[requires]
+python_version = "3.7"
