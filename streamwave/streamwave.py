@@ -51,10 +51,10 @@ class Streamwave(discord.Client):
 
     # only look at channel if state has been changed for us
     if str(after) != str(before):
-      # after.channel will be None if disconnecting, populated if switching or connecting
+      # after.channel will be None if someone is disconnecting, populated if switching or connecting
       if after.channel is not None and after.channel.id == self.settings.audio_channel:
         channel = after.channel
-      # before.channel will be None if connecting for first time, populated if they are coming from a different channel
+      # before.channel will be None if someone is connecting for first time, populated if they are coming from a different channel
       elif before.channel is not None and before.channel.id == self.settings.audio_channel:
         channel = before.channel
 
