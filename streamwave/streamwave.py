@@ -11,6 +11,7 @@ log = logging.getLogger("streamwave")
 
 class Streamwave(discord.Client):
   settings: StationSettings
+  audio_source: discord.FFmpegOpusAudio
 
   def __init__(self, settings: StationSettings, *args, **kwargs) -> None:
     super().__init__(*args, **kwargs)
@@ -21,14 +22,15 @@ class Streamwave(discord.Client):
     source = self.settings.audio_source
     vc = await channel.connect()
     # use from_probe to avoid re-encoding the stream on its way to discord
-    audio_source = await discord.FFmpegOpusAudio.from_probe(source)
-    vc.play(audio_source)
+    self.audio_source = await discord.FFmpegOpusAudio.from_probe(source)
+    vc.play(self.audio_source)
 
   async def streamwave_stop(self, channel) -> None:
     for v in self.voice_clients:
       if v.channel.id == channel.id:
         log.debug(f"Stopping streaming to {self.settings.audio_channel}")
         v.stop()
+        self.audio_source.cleanup()
         await v.disconnect()
 
   async def logout(self) -> None:
