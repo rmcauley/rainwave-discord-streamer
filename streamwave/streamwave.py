@@ -49,7 +49,10 @@ class Streamwave(discord.Client):
   async def on_voice_state_update(self, member, before, after) -> None:
     channel = None
 
-    # only look at channel if state has been changed for us
+    # on_voice_state_update will fire every time the voice state of the server changes.
+    # this includes people being muted in the same channel.
+    # so doing str(after) != str(before) filters it down to just when people have changed channels
+    # this if statement works because getting the string of the after and before states returns just the name of the channels.
     if str(after) != str(before):
       # after.channel will be None if someone is disconnecting, populated if switching or connecting
       if after.channel is not None and after.channel.id == self.settings.audio_channel:
