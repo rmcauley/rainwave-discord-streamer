@@ -16,41 +16,47 @@ class Streamwave(discord.Client):
     super().__init__(*args, **kwargs)
     self.settings = settings
 
-  async def on_connect(self) -> None:
-    log.debug("Connected")
+  async def streamwave_start(self, channel) -> None:
+    log.debug(f"Streaming to {self.settings.audio_channel}")
+    source = self.settings.audio_source
+    vc = await channel.connect()
+    # restream the Opus stream to Discord, avoiding re-encoding
+    audio_source = await discord.FFmpegOpusAudio.from_probe(source)
+    vc.play(audio_source)
+
+  async def streamwave_stop(self, channel) -> None:
+    for v in self.voice_clients:
+      if v.channel.id == channel.id:
+        log.debug(f"Stopping streaming to {self.settings.audio_channel}")
+        v.stop()
+        await v.disconnect()
+
+  async def logout(self) -> None:
+    for v in self.voice_clients:
+      v.stop()
+      await v.disconnect()
+    await super().logout()
+
+  async def on_ready(self) -> None:
+    # check to see if anyone's listening after we've started
+    channel = self.get_channel(self.settings.audio_channel)
+    if len(channel.members) > 0:
+      log.debug(f"Start-up check: Listeners waiting on {self.settings.audio_channel}")
+      await self.streamwave_start(channel)
+    else:
+      log.debug(f"Start-up check: Nobody waiting on {self.settings.audio_channel}")
 
   async def on_voice_state_update(self, member, before, after) -> None:
+    channel = after.channel or before.channel
+    if not channel or channel.id != self.settings.audio_channel:
+      return
+
     # will represent the list of channels currently connected to
-    voicelist = []
-    for v in self.voice_clients:
-      voicelist.append(v.channel.id)
+    voicelist = [v.channel.id for v in self.voice_clients]
 
-    log.debug("Activity!")
-    log.debug(str(voicelist))
-
-    # someone joined or left a channel
-    if str(after) != str(before):
-      # someone joined an autojoin channel
-      if after.channel is not None and after.channel.id == self.settings.audio_channel:
-        log.debug(after.channel.id)
-        log.debug(self.settings.audio_channel)
-        # are we already in it? If not, join in.
-        if after.channel.id not in voicelist:
-          source = self.settings.audio_source
-          channel = after.channel
-          vc = await channel.connect()
-          # restream the Opus stream to Discord, avoiding re-encoding
-          audio_source = await discord.FFmpegOpusAudio.from_probe(source, codec="copy")
-          vc.play(audio_source)
-
-      # someone left an autojoin channel
-      if before.channel is not None and before.channel.id == self.settings.audio_channel:
-        # are we connected? If yes, check how many members are left.
-        if before.channel.id in voicelist:
-          channel = self.get_channel(before.channel.id)
-          # if we're the only member left, it's time to leave.
-          if len(channel.members) == 1:
-            for v in self.voice_clients:
-              if v.channel.id == channel.id:
-                v.stop()
-                await v.disconnect()
+    # if we're the only ones left, disconnect
+    if len(channel.members) == 1 and channel.members[0].id == self.user.id:
+      await self.streamwave_stop(channel)
+    # if we haven't connected yet, start
+    elif len(channel.members) > 0 and channel.id not in voicelist:
+      await self.streamwave_start(channel)
