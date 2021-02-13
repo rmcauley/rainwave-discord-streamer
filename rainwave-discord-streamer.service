@@ -1,0 +1,13 @@
+[Unit]
+Description=Rainwave Discord Streamer Bot
+Wants=network.target
+
+[Service]
+Type=simple
+User=nobody
+Group=nogroup
+WorkingDirectory=/opt/rainwave-discord-streamer
+ExecStart=/usr/bin/env pipenv run start.py
+
+[Install]
+WantedBy=multi-user.target
