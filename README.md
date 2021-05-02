@@ -19,8 +19,3 @@ vi settings.py
 ```
 ./start.py
 ```
-
-### Test
-```
-This is me adding something
-```
