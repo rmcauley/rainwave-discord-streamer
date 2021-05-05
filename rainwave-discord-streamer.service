@@ -4,8 +4,8 @@ Wants=network.target
 
 [Service]
 Type=simple
-User=nobody
-Group=nogroup
+User=rmcauley
+Group=users
 WorkingDirectory=/home/rmcauley/rainwave-discord-streamer
 ExecStart=/usr/bin/env pipenv run ./start.py
 
