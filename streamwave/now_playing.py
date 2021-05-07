@@ -12,7 +12,7 @@ class NowPlaying:
     def format_song(self, rw_event):
         result = ""
         if rw_event["type"] == "OneUp":
-            result += "\U0001F31F POWER HOUR \U0001F3B5 "
+            result += "\U0001F31F PH: " + rw_event["name"] + " \U0001F3B5 "
         elif rw_event["type"] == "PVPElection":
             result += "\U0001F94A PVP \U0001F3B5 "
 
