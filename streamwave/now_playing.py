@@ -11,15 +11,15 @@ class NowPlaying:
 
     def format_song(self, rw_event):
         result = ""
-        if rw_event["type"] == "OneUpProducer":
-            result += "\U0001F31FPOWER HOUR\U000025B6 "
-        elif rw_event["type"] == "PVPElectionProducer":
-            result += "\U0001F94APVP\U000025B6 "
+        if rw_event["type"] == "OneUp":
+            result += "\U0001F31F POWER HOUR \U0001F3B5 "
+        elif rw_event["type"] == "PVPElection":
+            result += "\U0001F94A PVP \U0001F3B5 "
 
         song = rw_event["songs"][0]
         result += song["albums"][0]["name"]
-        result += ": " + song["title"]
-        result += " (" + ", ".join(artist["name"] for artist in song["artists"]) + ")"
+        result += " \U0001F4C2 " + song["title"]
+        result += " \U0001F58C " + ", ".join(artist["name"] for artist in song["artists"])
         return result
 
     # Function to be run in its own thread so that each bot can update its own status to the currently playing song, album, and artist
