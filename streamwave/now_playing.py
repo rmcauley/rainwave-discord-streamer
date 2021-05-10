@@ -1,5 +1,7 @@
 import asyncio
 import json
+import websocket
+import ssl
 from time import time
 from discord import Activity, ActivityType
 from urllib import request
@@ -25,25 +27,28 @@ class NowPlaying:
     # Function to be run in its own thread so that each bot can update its own status to the currently playing song, album, and artist
     async def start(self, client):
         first = True
+        apiKey = "bcNWNSiG80"
+        uid = "37003"
+        auth = '{ "action": "auth", "user_id": ' + uid + ', "key": ' + apiKey + '}'
         sid = str(self.sid)
-        while True:
-            alist = ""
-            song = ""
-            # Current song data is the first song in the info API call
-            with request.urlopen("http://rainwave.cc/api4/info?sid=" + sid) as url:
-                data = json.loads(url.read().decode())
+        uri = "wss://rainwave.cc/api4/websocket/"
+        
+        def on_message(ws, message):
+            data = json.decode(message)
+            if "sched_current" in data:
                 now_play = Activity(
-                    type=ActivityType.listening,
-                    name=self.format_song(data["sched_current"]),
-                )
+                        type = ActivityType.listening,
+                        name=self.format_song(data["sched_current"]),
+                        )
                 if client.ws:
                     await client.change_presence(activity=now_play)
-                # now we wait until the end of the song to check again
-                end = data["sched_current"]["end"]
-                start = data["sched_current"]["start_actual"]
-                if first and time() > start:
-                    sleeptime = end - time() + 5
-                    first = False
-                else:
-                    sleeptime = end - start
-                await asyncio.sleep(sleeptime)
+            elif "wserror" in data:
+                raise RuntimeError("Bad user ID/API key")
+            elif "wsok" in data:
+                ws.send({
+                    "action": "check_sched_current_id",
+                    "sched_id": 1,
+                    })
+
+        ws = websocket.WebSocketApp(uri, on_message=on_message)
+        ws.run_forever(skip_utf8_validation=True)
