@@ -48,9 +48,7 @@ class Streamwave(discord.Client):
             )
             await self.streamwave_start(channel)
         else:
-            log.info(
-                f"Start-up check: Nobody waiting on {self.settings.audio_channel}"
-            )
+            log.info(f"Start-up check: Nobody waiting on {self.settings.audio_channel}")
 
     async def on_voice_state_update(self, member, before, after) -> None:
         channel = None
