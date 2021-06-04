@@ -32,7 +32,7 @@ clients: typing.List[Streamwave] = [
 ]
 try:
     for client in clients:
-        now_playing = NowPlaying(client.settings.sid)
+        now_playing = NowPlaying(client.settings.sid, settings.rainwave_user_id, settings.rainwave_api_key)
         loop.create_task(client.start(client.settings.discord_token))
         loop.create_task(now_playing.start(client))
     loop.run_forever()
