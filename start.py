@@ -32,9 +32,10 @@ clients: typing.List[Streamwave] = [
 ]
 try:
     for client in clients:
-        now_playing = NowPlaying(client.settings.sid, settings.rainwave_user_id, settings.rainwave_api_key)
+        now_playing = NowPlaying(client, client.settings.sid, settings.rainwave_user_id, settings.rainwave_api_key)
         loop.create_task(client.start(client.settings.discord_token))
-        loop.create_task(now_playing.start(client))
+        # We need to change this to use a nonblocking websocket
+        # loop.run_in_executor(None, func=now_playing.start)
     loop.run_forever()
 except KeyboardInterrupt:
     for client in clients:

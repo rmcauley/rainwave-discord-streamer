@@ -9,7 +9,8 @@ log = logging.getLogger("streamwave")
 
 
 class NowPlaying:
-    def __init__(self, sid, rainwave_user_id, rainwave_api_key):
+    def __init__(self, client, sid, rainwave_user_id, rainwave_api_key):
+        self.client = client
         self.sid = sid
         self.rainwave_user_id = rainwave_user_id
         self.rainwave_api_key = rainwave_api_key
@@ -28,7 +29,7 @@ class NowPlaying:
         return result[:MAX_LENGTH]
 
     # Function to be run in its own thread so that each bot can update its own status to the currently playing song, album, and artist
-    async def start(self, client):
+    def start(self):
         def on_message(connected_ws, message):
             data = json.loads(message)
             if "sched_current" in data:
@@ -38,8 +39,8 @@ class NowPlaying:
                     type = ActivityType.listening,
                     name=formatted_song,
                 )
-                if client.ws:
-                    client.change_presence(activity=now_play)
+                if self.client.ws:
+                    self.client.change_presence(activity=now_play)
             if "wserror" in data:
                 log.error(f"Failed validation to Rainwave API. {message}")
                 raise RuntimeError("Bad user ID/API key")
@@ -67,7 +68,7 @@ class NowPlaying:
                 on_open=on_open,
                 on_message=on_message,
             )
-            return ws.run_forever()
+            ws.run_forever()
 
         except:
             log.exception("Error connecting", exc_info=sys.exc_info())

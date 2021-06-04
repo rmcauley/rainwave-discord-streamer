@@ -43,12 +43,12 @@ class Streamwave(discord.Client):
         # check to see if anyone's listening after we've started
         channel = self.get_channel(self.settings.audio_channel)
         if len(channel.voice_states) > 0:
-            log.debug(
+            log.info(
                 f"Start-up check: Listeners waiting on {self.settings.audio_channel}"
             )
             await self.streamwave_start(channel)
         else:
-            log.debug(
+            log.info(
                 f"Start-up check: Nobody waiting on {self.settings.audio_channel}"
             )
 
