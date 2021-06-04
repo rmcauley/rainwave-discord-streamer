@@ -37,9 +37,13 @@ class NowPlaying:
 
     # Function to be run in its own thread so that each bot can update its own status to the currently playing song, album, and artist
     async def start(self):
-        log.debug("Connecting to Rainwave API")
-        ws = await websockets.connect(f"{self.rainwave_api_url}{self.sid}")
-        self.ws = ws
+        try:
+            log.debug("Connecting to Rainwave API")
+            ws = await websockets.connect(f"{self.rainwave_api_url}{self.sid}")
+            self.ws = ws
+        except Exception as err:
+            log.error(f"Error connecting to Rainwave: {err}")
+            raise
 
         log.debug("Authorizing with Rainwave API")
         await ws.send(
