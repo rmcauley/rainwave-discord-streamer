@@ -30,7 +30,8 @@ class Streamwave(discord.Client):
             if v.channel.id == channel.id:
                 log.debug(f"Stopping streaming to {self.settings.audio_channel}")
                 v.stop()
-                self.audio_source.cleanup()
+                if self.audio_source:
+                    self.audio_source.cleanup()
                 await v.disconnect()
 
     async def logout(self) -> None:
