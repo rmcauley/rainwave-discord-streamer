@@ -16,6 +16,7 @@ class Streamwave(discord.Client):
     def __init__(self, settings: StationSettings, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.settings = settings
+        self.audio_source = None
 
     async def streamwave_start(self, channel) -> None:
         log.debug(f"Streaming to {self.settings.audio_channel}")
