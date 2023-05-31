@@ -33,7 +33,7 @@ class NowPlaying:
         sid = str(self.sid)
         uri = "wss://rainwave.cc/api4/websocket/"
         
-        def on_message(ws, message):
+        async def on_message(ws, message):
             data = json.decode(message)
             if "sched_current" in data:
                 now_play = Activity(
