@@ -16,6 +16,7 @@ class Streamwave(discord.Client):
     def __init__(self, settings: StationSettings, *args, **kwargs) -> None:
         super().__init__(intent=discord.Intents.default(), *args, **kwargs)
         self.settings = settings
+        self.audio_source = None
 
     async def streamwave_start(self, channel) -> None:
         log.debug(f"Streaming to {self.settings.audio_channel}")
@@ -30,7 +31,8 @@ class Streamwave(discord.Client):
             if v.channel.id == channel.id:
                 log.debug(f"Stopping streaming to {self.settings.audio_channel}")
                 v.stop()
-                self.audio_source.cleanup()
+                if self.audio_source:
+                    self.audio_source.cleanup()
                 await v.disconnect()
 
     async def logout(self) -> None:
@@ -43,14 +45,12 @@ class Streamwave(discord.Client):
         # check to see if anyone's listening after we've started
         channel = self.get_channel(self.settings.audio_channel)
         if len(channel.voice_states) > 0:
-            log.debug(
+            log.info(
                 f"Start-up check: Listeners waiting on {self.settings.audio_channel}"
             )
             await self.streamwave_start(channel)
         else:
-            log.debug(
-                f"Start-up check: Nobody waiting on {self.settings.audio_channel}"
-            )
+            log.info(f"Start-up check: Nobody waiting on {self.settings.audio_channel}")
 
     async def on_voice_state_update(self, member, before, after) -> None:
         channel = None
