@@ -14,7 +14,7 @@ class Streamwave(discord.Client):
     audio_source: discord.FFmpegOpusAudio
 
     def __init__(self, settings: StationSettings, *args, **kwargs) -> None:
-        super().__init__(intent=discord.Intents.default(), *args, **kwargs)
+        super().__init__(intents=discord.Intents.default(), *args, **kwargs)
         self.settings = settings
         self.audio_source = None
 
